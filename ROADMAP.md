@@ -124,6 +124,15 @@ lint. What is not established is surviving versions and volume; those items are 
      Playwright ships a cut-down ffmpeg, untested for this; ffmpeg-static is GPL-3.0-or-later.
    - **Review and hosting.** Step boundaries are captured as stills so the existing pixel diff reviews the
      keyframes; the video itself is reviewed by eye. Upload to VideoPress stays a manual step.
+   - **Proof (2026-10-21).** An existing 22 s documentation video (Gallery block: Order by to A → Z, then Newest to
+     oldest, then Duotone on all six images) was recreated step for step on the demo site with the Gutenberg
+     blueprint, a six-image gallery created through `setup`-style REST calls, the injected cursor and the Screencast
+     API: 20.9 s, 1920×1200, constant 30 fps, 9.2 MB WebM, reorder animation captured, 46 s per run including boot.
+     Differences from the original were content and theme, the undrawn native select list, and the duotone preset,
+     which had to be added to global styles because Ipsum defines only one. The step list in the engine's YAML
+     vocabulary needed these additions: `moveTo` (eased, with a duration), `pause`, `record: start | stop`,
+     `still`, `reducedMotion: false`, `fps`, and `setup` operations for attachment titles and dates and for a
+     temporary global-styles change. That list is the specification for this item.
 10. **Prose accuracy.** The toolkit keeps images accurate; it does not yet check that a control an article names
    still exists with that name. `inspect` already returns the accessible names on screen, so a check that
    cross-references an article's named controls against the UI reuses what exists. The Markdown conventions
