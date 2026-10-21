@@ -134,7 +134,8 @@ Done: screenshot engine with presets, frames and annotations; demo site on Ipsum
 showcases; MCP server with a warm WordPress session; manifest validator and action; conventions and guidelines.
 Next: more blocks in the showcase, a Markdown conventions linter, a style and spelling check for WordPress.org
 prose, a hosted MCP endpoint, and an upstream request to slim the Playground runtime, which currently ships a PHP
-build for every version.
+build for every version. [ROADMAP.md](ROADMAP.md) states the end goal (re-render every handbook's screenshots on a
+WordPress release, as a routine job) and what is still missing for it, in order.
 
 ## License
 
