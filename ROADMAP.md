@@ -50,15 +50,24 @@ lint. What is not established is surviving versions and volume; those items are 
    ported into `src/wp.js` and the accessible names presets depend on, have no automated coverage. A scheduled job
    that renders `examples/block-editor-handbook` against the WordPress beta or nightly (Playground accepts those
    through `--wp`) would show preset breakage weeks before release day. Do this before any handbook adopts.
-2. **A Gutenberg suite in the demo site** (asked for 2026-10-21). Some screenshots document features that are in
-   the Gutenberg plugin before they reach a WordPress release; the Gallery block's "Order by" control is one, and
-   WordPress 7.1.3 still shows a "Randomize order" toggle. The mechanism exists: a spec's `suite:` selects
-   `<suitesDir>/<name>/blueprint.json` and the runner boots once per suite, but the demo site ships no suites and
-   `setup`'s `plugin` operation only activates a plugin that is already installed. Add `packages/demo-site/suites/
-   gutenberg/blueprint.json` (the default blueprint plus an `installPlugin` step for Gutenberg from wordpress.org,
-   pinned to a version and bumped with the toolkit), expose it as `shoot --suite gutenberg` and a `suite` parameter
-   on the MCP `screenshot` and `inspect` tools, and record the plugin version in the manifest entry next to
-   `wordpress`. A handbook that needs another plugin adds its own suite the same way.
+2. **Required plugins, declared where the shot is** (asked for 2026-10-21). Some screenshots document features
+   that live in a plugin: the Gutenberg plugin ahead of a WordPress release (the Gallery block's "Order by" control
+   is one; WordPress 7.1.3 still shows a "Randomize order" toggle), the MCP adapter plugin, or any plugin a handbook
+   documents. The user or the spec names the plugins; the engine provides them. Design:
+   - A `plugins` list at three levels, merged: the project's `shots.config.js`, a spec file, a shot. Each entry is a
+     wordpress.org slug with an optional pinned version (`gutenberg`, `gutenberg@22.3.0`), a zip URL, or a local path,
+     so plugins that are not on wordpress.org (a GitHub release zip, a plugin under development) work too. Same list
+     as `--plugin` on `shoot` and a `plugins` parameter on the MCP `screenshot` and `inspect` tools.
+   - Plugins change the whole environment, so they are installed at boot through the blueprint's `installPlugin`
+     step, not per shot through `setup`. The runner already boots once per suite; it would group shots by suite plus
+     the sorted plugin set and boot once per group, keeping unrelated shots on the clean site. `setup`'s `plugin`
+     operation stays for toggling an installed plugin's active state within a shot.
+   - The resolved plugin list with versions goes into the shot hash and the manifest entry next to `wordpress`, so
+     a plugin update is a re-render and a review like a WordPress update. Unpinned entries resolve to the version
+     installed at render time and record it.
+   - The demo site ships a `gutenberg` preset for the common case; projects add named plugin sets of their own.
+   What exists today: `suite:` on a spec selects `<suitesDir>/<name>/blueprint.json` and boots once per suite, but
+   no suites ship and a suite needs a whole blueprint; `setup`'s `plugin` only activates an installed plugin.
 3. **A retry before reporting a diff.** The runner has no retry or flake handling; one slow response or popover
    race fails that shot, and at a thousand shots a half-percent flake rate is five false diffs per run that the
    report cannot tell from real changes. Re-render a failed or changed shot once before staging it.
