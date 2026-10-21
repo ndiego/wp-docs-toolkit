@@ -68,6 +68,10 @@ lint. What is not established is surviving versions and volume; those items are 
    - The demo site ships a `gutenberg` preset for the common case; projects add named plugin sets of their own.
    What exists today: `suite:` on a spec selects `<suitesDir>/<name>/blueprint.json` and boots once per suite, but
    no suites ship and a suite needs a whole blueprint; `setup`'s `plugin` only activates an installed plugin.
+   Verified 2026-10-21: a copy of the demo blueprint with one added `installPlugin` step (`wordpress.org/plugins`,
+   slug `gutenberg`, activate) boots in 14 s instead of 8 and the Gallery block then shows "Order by", so the
+   blueprint route needs no Playground changes; the shot took 11 s against 3 s, with a network-idle warning, so a
+   plugin suite may need a longer settle.
 3. **A retry before reporting a diff.** The runner has no retry or flake handling; one slow response or popover
    race fails that shot, and at a thousand shots a half-percent flake rate is five false diffs per run that the
    report cannot tell from real changes. Re-render a failed or changed shot once before staging it.
@@ -95,12 +99,31 @@ lint. What is not established is surviving versions and volume; those items are 
    Verify under load.
 9. **Video from the engine.** Articles that show a transition (a drag, a reorder animation, a multi-step flow) need
    a hosted video, and the engine should produce it from the same scene and steps as a still so a release re-render
-   covers it. The sketch: a recording mode runs the steps with eased mouse movement and a visible cursor, captures
-   frames at a fixed rate through the CDP screencast inside the Docker image, and writes a timeline (step boundaries,
-   mouse path, clicks); a Remotion composition turns frames plus timeline plus style tokens into an MP4 with a
-   consistent frame, cursor and pacing; the step boundaries are also captured as stills so the existing pixel diff
-   reviews the keyframes. Upload to VideoPress stays a manual step. Open questions: how a changed video is reviewed,
-   and whether Playwright's own `recordVideo` is good enough for a first version.
+   covers it. Findings from a spike on 2026-10-21 (recordings and notes kept outside the repo):
+   - **Build on Playwright's Screencast API, not Remotion.** Playwright 1.64, the version pinned here, has
+     `page.screencast.start({ path, fps, size })` and `stop()`, a built-in animated pointer between actions
+     (`showActions`, with a `style` option to hide its locator titles), overlays and chapter titles, and an `onFrame`
+     callback with JPEG frames. Apache-2.0, already installed, works inside the Docker image. The spike recorded the
+     Gallery block on the demo site at a steady 30 fps, 1920×1200 WebM VP9, 2.9 MB for 19 s, no dropped frames.
+     Playwright's `recordVideo` also works (fixed 25 fps) but records from context creation, so it needs trimming.
+   - **Remotion is ruled out as a dependency.** It is source-available under its own license: free for individuals,
+     non-profits and companies of up to three people, and every company of four or more that runs the renders needs
+     its own Company License (from $25 per seat per month). There is no open-source carve-out, so every handbook
+     team that ran the toolkit's video renders would need a license, and the license's compatibility with
+     GPL-2.0-or-later is unresolved. It also requires React and a webpack bundle step. What it would have added
+     (a composited cursor, pacing, titles, encoding) the Screencast API and a small amount of code cover.
+   - **Cursor and pacing come from the engine, not the recording.** The spike's injected cursor (a DOM arrow that
+     follows eased `mouse.move` steps and shrinks on click) read better than Playwright's pointer, which moves
+     linearly over about 0.3 s. Recording mode turns the existing verbs into eased moves with pauses; new verbs
+     `moveTo`, `pause` and recording start and stop markers are the only vocabulary additions. Reduced motion must
+     be off for the video context, unlike stills.
+   - **Known limits.** Headless Chromium does not draw an open native `<select>` popup, so a dropdown shows the
+     click and then the new value; container blocks such as Gallery need a visible "select parent" recipe because
+     a click lands on an inner block; effects must exist in the target WordPress or plugin version (the Gallery
+     block had no Duotone in 7.1.3 without the Gutenberg plugin). Trimming and transcoding to MP4 need an encoder:
+     Playwright ships a cut-down ffmpeg, untested for this; ffmpeg-static is GPL-3.0-or-later.
+   - **Review and hosting.** Step boundaries are captured as stills so the existing pixel diff reviews the
+     keyframes; the video itself is reviewed by eye. Upload to VideoPress stays a manual step.
 10. **Prose accuracy.** The toolkit keeps images accurate; it does not yet check that a control an article names
    still exists with that name. `inspect` already returns the accessible names on screen, so a check that
    cross-references an article's named controls against the UI reuses what exists. The Markdown conventions
