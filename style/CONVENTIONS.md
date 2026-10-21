@@ -18,12 +18,17 @@ not a style preference. Voice, grammar and terminology are the Docs team's style
   importer subclass rewrites them to notice markup. Raw `.callout-*` divs (the Block Editor's current style) are not
   styled on GitHub and do not parse Markdown inside.
 - **Shortcodes in prose stay escaped** (`[[audio]]`), and block-markup comments only ever appear inside code fences.
-- **Images live in the repo as compressed WebP** (animated WebP for animations) under `assets/`, referenced by relative
+- **Images live in the repo as compressed WebP** under `assets/`, referenced by relative
   path, with alt text carried verbatim. The importer subclass sideloads them into the site's media library at import
   (as the Playground importer does), so the site never serves from GitHub. Keeping absolute
   `developer.wordpress.org/files/` URLs (the Block Editor's current practice) also imports fine but leaves image
   updates outside the pull request flow. **Video and other large media are never stored in Git**; host them on
   WordPress.org or YouTube and embed by URL.
+- **Motion is a video, never an animated image** (decided 2026-10-21). A UI interaction is shown as a static image,
+  a short sequence of static images, or a hosted video embedded by URL. GIFs and animated WebP are not used: they
+  autoplay and loop with no pause control, which is a problem for users with vestibular or attention conditions and
+  an annoyance for everyone else, and they carry no captions, no alt text for the motion and no way to scrub. A
+  video player gives all of that. `style/SCREENSHOTS.md` says when a sequence of stills is enough.
 
 ## What the importer actually does
 

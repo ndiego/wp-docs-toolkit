@@ -134,6 +134,17 @@ that possible as it grows.
 - Alt text lives in the spec and is the source of truth; `wp-screenshots lint --fix` copies it into the Markdown.
 - Captions explain; alt text describes. Do not repeat one in the other.
 
+## Motion
+
+A static image or a video, never an animated image. GIFs and animated WebP autoplay and loop without a pause
+control, so they are not used in any handbook (`style/CONVENTIONS.md`). When an article needs to show motion:
+
+- Prefer a sequence of two or three stills with numbered badges when the states matter more than the transition:
+  before, the control being used, after. Stills stay in the release re-render loop and get alt text per state.
+- Use a hosted video (VideoPress or YouTube, embedded by URL) when the transition itself is the point, such as a
+  drag, a reorder animation or a multi-step flow. The engine does not produce video yet; `ROADMAP.md` has the plan.
+  Until then, record on the demo site with the same frame and viewport conventions as the stills.
+
 ## Determinism and review
 
 Local renders are previews. Only a render inside the pinned Playwright image (`--docker`, or the CI job) is

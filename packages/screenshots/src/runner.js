@@ -122,7 +122,7 @@ export async function runShots( config, opts = {} ) {
 					const ctx = session.ctx;
 					if ( shot.kind === 'clip' ) {
 						log(
-							`  ~ ${ shot.id }: clips are not supported yet (phase 5); skipped`
+							`  ~ ${ shot.id }: clips (short videos) are not supported yet; skipped`
 						);
 						results.push( { key, status: 'skipped', ms: 0 } );
 						continue;

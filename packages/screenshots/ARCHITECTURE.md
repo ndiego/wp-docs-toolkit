@@ -82,7 +82,8 @@ shots:
         - badge: { label: 1, control: Alternative text }
         - dim: { target: inspector }
       mask: [ { selector: ".some-dynamic" } ]
-    kind: image                  # image (default) | clip (reserved; parsed and skipped with a warning)
+    kind: image                  # image (default) | clip (reserved for short videos; parsed and skipped with a warning;
+                                 #   never an animated image, see style/CONVENTIONS.md)
     script: ./custom.js          # optional escape hatch; default export (ctx) => Promise<void>, replaces steps
 ```
 
